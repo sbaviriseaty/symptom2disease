@@ -8,6 +8,33 @@ co = cohere.Client('wxLxQpiNjXruopgx0sV6EvFGJIFxQAyyl3kyzM3m')
 if 'output' not in st.session_state:
     st.session_state['output'] = 'Output:'
 
+diseases = [
+    'Psoriasis',
+    'Varicose Veins',
+    'Typhoid',
+    'Chicken Pox',
+    'Impetigo',
+    'Dengue',
+    'Fungal Infection',
+    'Common Cold',
+    'Pneumonia',
+    'Dimorphic Hemorrhoids',
+    'Arthritis',
+    'Acne',
+    'Bronchial Asthma',
+    'Hypertension',
+    'Migraine',
+    'Cervical Spondylosis',
+    'Jaundice',
+    'Malaria',
+    'Urinary Tract Infection',
+    'Allergy',
+    'Gastroesophageal Reflux Disease',
+    'Drug Reaction',
+    'Peptic Ulcer Disease',
+    'Diabetes'
+]
+
 
 def classify_disease(input):
     if len(input) == 0:
@@ -26,10 +53,12 @@ def classify_disease(input):
 
 st.title('Symptom 2 Disease')
 st.subheader('Classify disease from symptoms')
-st.write('''This will output one of 24 diseases from input symptoms.''')
+st.write('''This will output confidence scores for the top 5 out of 24 diseases: ''', ', '.join(diseases))
+st.divider()
 input = st.text_area('Enter your symptoms here.', height=100)
 st.button('Classify Disease', on_click=classify_disease(input))
 # st.write(st.session_state['output'])
+st.divider()
 if len(input) != 0:
     # output = classify_disease(input)
     output = st.session_state['output']
@@ -37,12 +66,19 @@ if len(input) != 0:
     # print(output)
     col1, col2 = st.columns(2)
     count = 0
+    disease = ""
     for key in sorted_output:
         if count == 0:
             col1.write(f"**{key}**: {np.round(sorted_output[key].confidence * 100, 2)}%")
             col1.progress(sorted_output[key].confidence)
-            count += 1
-        else:
+            disease = key
+        elif count < 5:
             col1.write(f"{key}: {np.round(sorted_output[key].confidence * 100, 2)}%")
             col1.progress(sorted_output[key].confidence)
             # print(key, '->', output[key].confidence)
+        count += 1
+    response = co.generate(
+        prompt='Can you provide a description of ' + disease + '?',
+        max_tokens=250,
+    )
+    col2.write(response.generations[0].text)

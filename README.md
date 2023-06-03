@@ -11,7 +11,7 @@ cd symptom2disease
 pip install -r requirements.txt
 
 # Run the Application
-streamlit run myapp.py
+streamlit run symptom2disease/myapp.py
 ```
 
 ### Relevant links
